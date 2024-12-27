@@ -1,0 +1,18 @@
+Version: 1.0
+ProjectId: 9b6657dc-96d3-40fe-ab0c-bf19089ae00e
+
+RestoreWorkspace: Default
+SaveWorkspace: Default
+AlwaysSaveHistory: Default
+
+EnableCodeIndexing: Yes
+UseSpacesForTab: Yes
+NumSpacesForTab: 2
+Encoding: UTF-8
+
+RnwWeave: Sweave
+LaTeX: pdfLaTeX
+
+PythonType: virtualenv
+PythonVersion: 3.13.1
+PythonPath: env/bin/python

@@ -1,0 +1,28 @@
+---
+title: "My Analysis"
+author: "Your Name"
+format: html
+execute:
+  freeze: auto
+  python:
+    type: venv
+    name: .venv
+    requirements: requirements.txt
+
+---
+
+# Introduction
+
+This document will demonstrate reproducible code execution. When you render this Quarto document, Quarto will:
+
+-   Create a Python virtual environment.
+-   Install all packages listed in `requirements.txt`.
+-   Execute all code chunks in that environment.
+
+You don’t need to do anything else. Just open `my-document.qmd` in RStudio and click "Render." Everyone who gets this project with the `_quarto.yml` and `requirements.txt` will have the same environment.
+
+## Python Code Example
+
+```{python}
+
+```

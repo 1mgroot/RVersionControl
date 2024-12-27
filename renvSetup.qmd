@@ -1,0 +1,59 @@
+---
+title: "Installing renv"
+author: ""
+date: ""
+format:
+  html:
+    code-fold: true
+    toc: true
+---
+
+# Introduction
+
+`renv` is a package for managing R dependencies. It helps ensure reproducibility by isolating project-specific package environments.
+
+# Steps to Install and Initialize `renv`
+
+## Step 1: Install `renv` Package
+
+```{r}
+install.packages("renv")
+```
+
+This command installs the `renv` package from CRAN.
+
+## Step 2: Initialize `renv`
+
+```{r}
+renv::init()
+```
+
+-   This initializes an `renv` environment in your project.
+-   A `renv.lock` file is created, which records the state of your library.
+-   A `renv` folder is created in your project directory to store the environment.
+
+## Step 3: Install Project-Specific Dependencies
+
+Install the required packages for your project:
+
+```{r}
+install.packages("yaml")
+```
+
+Replace `<package_name>` with the packages your project needs.
+
+## Step 4: Snapshot the Environment
+
+```{r}
+renv::snapshot()
+```
+
+This command updates the `renv.lock` file with the current state of your environment, ensuring reproducibility.
+
+```{r}
+renv::dependencies()
+```
+
+# Conclusion
+
+`renv` simplifies dependency management in R projects, promoting consistency and reproducibility. Regularly snapshot your environment to keep the `renv.lock` file updated.
