@@ -4,11 +4,6 @@ author: "Your Name"
 format: html
 execute:
   freeze: auto
-  python:
-    type: venv
-    name: .venv
-    requirements: requirements.txt
-
 ---
 
 # Introduction
@@ -24,5 +19,10 @@ You don’t need to do anything else. Just open `my-document.qmd` in RStudio and
 ## Python Code Example
 
 ```{python}
+import numpy as np
 
+# Create a 1D array
+array_1d = np.array([1, 2, 3, 4, 5])
+print("Hello World")
+print(array_1d)
 ```
