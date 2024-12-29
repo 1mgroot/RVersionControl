@@ -1,9 +1,5 @@
 project:
   type: website
 
-execute:
-  freeze: auto
-  python:
-    type: venv
-    name: .venv
-    requirements: requirements.txt
+python:
+  path: "renv/python/bin/python"
