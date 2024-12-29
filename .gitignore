@@ -8,6 +8,7 @@
 
 # User-specific files
 .Ruserdata
+.Rprofile
 
 # Example code in package build process
 *-Ex.R
@@ -47,3 +48,57 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
+
+# Python virtual environments
+/env/
+/venv/
+/.env/
+/.venv/
+/renv/python/
+
+# Quarto
+/.quarto/
+/_site/
+/_freeze/
+*.html
+!index.html
+*_files/
+*_cache/
+/.quarto/
+*.ipynb
+.jupyter/
+.ipynb_checkpoints/
+*.knit.md
+*.utf8.md
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS specific
+.DS_Store
+Thumbs.db
