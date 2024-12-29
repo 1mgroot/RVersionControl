@@ -1,0 +1,107 @@
+---
+title: "Project Dependencies Information"
+format: html
+toc: true
+---
+
+# R Dependencies
+
+## All R Dependencies
+
+This shows all installed R packages, including indirect dependencies:
+
+```{r}
+#| echo: true
+#| warning: false
+#| message: false
+# Get all installed packages
+pkgs <- installed.packages()
+pkg_df <- as.data.frame(pkgs)
+# Display in a more readable format
+knitr::kable(pkg_df[, c("Package", "Version", "Priority")])
+```
+
+## Dependencies from renv.lock
+
+This shows the complete dependency tree from renv.lock:
+
+```{r}
+#| echo: true
+#| warning: false
+#| message: false
+# Read and display renv.lock contents
+lock_file <- jsonlite::read_json("renv.lock")
+# Display R version
+cat("R Version:", lock_file$R$Version, "\n\n")
+
+# Create a data frame of package information
+packages <- data.frame(
+  Package = names(lock_file$Packages),
+  Version = sapply(lock_file$Packages, function(x) x$Version),
+  Source = sapply(lock_file$Packages, function(x) x$Source)
+)
+
+# Display packages table
+knitr::kable(packages)
+```
+
+# Python Dependencies
+
+## All Python Packages
+
+This shows all installed Python packages in the virtual environment:
+
+```{python}
+#| echo: true
+#| warning: false
+import pkg_resources
+import pandas as pd
+
+# Get all installed packages
+packages = []
+for pkg in pkg_resources.working_set:
+    packages.append({
+        'Package': pkg.key,
+        'Version': pkg.version
+    })
+
+# Convert to DataFrame and display
+df = pd.DataFrame(packages)
+print("\nTotal Python packages:", len(df))
+print("\nInstalled Python packages:")
+df_sorted = df.sort_values('Package')
+print(df_sorted.to_markdown(index=False))
+```
+
+## Direct Dependencies from requirements.txt
+
+These are the packages explicitly listed in requirements.txt:
+
+```{python}
+#| echo: true
+#| warning: false
+import os
+
+if os.path.exists('requirements.txt'):
+    with open('requirements.txt', 'r') as f:
+        requirements = f.read().strip().split('\n')
+    print("\nDirect dependencies from requirements.txt:")
+    for req in requirements:
+        print(f"- {req}")
+else:
+    print("requirements.txt not found")
+```
+
+# Summary
+
+## R Environment
+
+-   R Version: {r}`lock_file$R$Version`
+-   Total R packages: {r}`nrow(packages)`
+-   Direct dependencies: {r}`nrow(renv::dependencies())`
+
+## Python Environment
+
+-   Python Version: {python}`import sys; print(sys.version.split()[0])`
+-   Total Python packages: {python}`len(packages)`
+-   Direct dependencies: {python}`len(requirements) if 'requirements' in locals() else 0`
