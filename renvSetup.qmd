@@ -1,59 +1,222 @@
 ---
-title: "Installing renv"
-author: ""
-date: ""
-format:
+title: "Environment Setup"
+author: "Your Name"
+format: 
   html:
-    code-fold: true
-    toc: true
+    embed-resources: true
 ---
 
-# Introduction
+# Environment Setup Process
 
-`renv` is a package for managing R dependencies. It helps ensure reproducibility by isolating project-specific package environments.
+This document will:
+1. Initialize renv for R package management
+2. Set up Python virtual environment
+3. Install all required packages
+4. Document all dependencies
 
-# Steps to Install and Initialize `renv`
+## Initialize R Environment
 
-## Step 1: Install `renv` Package
-
-```{r}
-install.packages("renv")
-```
-
-This command installs the `renv` package from CRAN.
-
-## Step 2: Initialize `renv`
+First, let's initialize renv and install required R packages:
 
 ```{r}
-renv::init()
-```
+#| warning: false
+#| message: false
 
--   This initializes an `renv` environment in your project.
--   A `renv.lock` file is created, which records the state of your library.
--   A `renv` folder is created in your project directory to store the environment.
+# Initialize renv if not already initialized
+if (!file.exists("renv.lock")) {
+  renv::init()
+}
 
-## Step 3: Install Project-Specific Dependencies
+# Install and load required R packages
+if (!require("tidyverse")) renv::install("tidyverse")
+if (!require("reticulate")) renv::install("reticulate")
+if (!require("knitr")) renv::install("knitr")
+if (!require("rmarkdown")) renv::install("rmarkdown")
 
-Install the required packages for your project:
-
-```{r}
-install.packages("yaml")
-```
-
-Replace `<package_name>` with the packages your project needs.
-
-## Step 4: Snapshot the Environment
-
-```{r}
+# Take a snapshot of the current state
 renv::snapshot()
 ```
 
-This command updates the `renv.lock` file with the current state of your environment, ensuring reproducibility.
+## Set Up Python Environment
+
+Now, let's set up the Python virtual environment:
 
 ```{r}
-renv::dependencies()
+#| warning: false
+#| message: false
+
+# Create Python configuration
+python_config <- list(
+  version = "3.11",
+  requirements = "requirements.txt",
+  virtualenv = "renv/python"
+)
+
+# Write Python configuration
+jsonlite::write_json(
+  python_config,
+  "python-config.json",
+  pretty = TRUE,
+  auto_unbox = TRUE
+)
+
+# Create .Rprofile
+rprofile_content <- c(
+  'source("renv/activate.R")',
+  'Sys.setenv(RETICULATE_PYTHON = file.path(getwd(), "renv/python/bin/python"))'
+)
+writeLines(rprofile_content, ".Rprofile")
+
+# Set up Python virtual environment
+reticulate::virtualenv_create(
+  envname = "renv/python",
+  python = python_config$version
+)
+
+# Install Python packages
+python_packages <- c(
+  "pandas",
+  "numpy",
+  "matplotlib",
+  "jupyter",
+  "tabulate"  # Required for markdown tables
+)
+
+# Write requirements.txt
+writeLines(python_packages, "requirements.txt")
+
+# Install packages
+reticulate::virtualenv_install(
+  envname = "renv/python",
+  packages = python_packages,
+  ignore_installed = TRUE
+)
 ```
 
-# Conclusion
+## Document Dependencies
 
-`renv` simplifies dependency management in R projects, promoting consistency and reproducibility. Regularly snapshot your environment to keep the `renv.lock` file updated.
+### R Packages
+
+Here are the currently installed R packages:
+
+```{r}
+#| warning: false
+#| message: false
+
+# Get R package information
+cat("R Version:", R.version$version.string, "\n\n")
+
+# Read renv.lock to get package versions
+lock_data <- jsonlite::read_json("renv.lock")
+packages <- lock_data$Packages
+
+# Get unique direct dependencies
+deps <- unique(renv::dependencies()$Package)
+
+cat("Direct R Dependencies (packages explicitly used in code):\n")
+if (length(deps) > 0) {
+  # Create a formatted string for each package with version from renv.lock
+  pkg_info <- sapply(deps, function(pkg) {
+    version <- if (!is.null(packages[[pkg]])) packages[[pkg]]$Version else "unknown"
+    sprintf("- %s: %s", pkg, version)
+  })
+  cat(paste(sort(pkg_info), collapse = "\n"), "\n")
+} else {
+  cat("No direct dependencies found.\n")
+}
+
+# Show all installed packages
+cat("\nAll Installed R Packages (including indirect dependencies):\n")
+all_pkgs <- names(packages)
+if (length(all_pkgs) > 0) {
+  pkg_info <- sapply(all_pkgs, function(pkg) {
+    version <- if (!is.null(packages[[pkg]])) packages[[pkg]]$Version else "unknown"
+    sprintf("- %s: %s", pkg, version)
+  })
+  cat(paste(sort(pkg_info), collapse = "\n"), "\n")
+}
+
+# Show full environment status
+cat("\nR Environment Status:\n")
+renv::status()
+```
+
+### Python Packages
+
+Here are the currently installed Python packages:
+
+```{python}
+#| warning: false
+
+import sys
+import pkg_resources
+from tabulate import tabulate
+
+# Print Python version
+print(f"Python Version: {sys.version.split()[0]}")
+
+# Read direct dependencies from requirements.txt
+with open('requirements.txt', 'r') as f:
+    direct_deps = [line.strip().split('==')[0] for line in f if line.strip()]
+
+# Get all installed packages
+all_packages = sorted([
+    [pkg.key, pkg.version]
+    for pkg in pkg_resources.working_set
+])
+
+# Split into direct and indirect dependencies
+direct_packages = []
+indirect_packages = []
+
+for pkg_name, version in all_packages:
+    if pkg_name in direct_deps:
+        direct_packages.append([pkg_name, version])
+    else:
+        indirect_packages.append([pkg_name, version])
+
+# Display direct dependencies
+print("\nDirect Python Dependencies (from requirements.txt):")
+print(tabulate(sorted(direct_packages), headers=['Package', 'Version'], tablefmt='pipe'))
+
+# Display indirect dependencies
+print("\nIndirect Python Dependencies (installed as dependencies of direct packages):")
+print(tabulate(sorted(indirect_packages), headers=['Package', 'Version'], tablefmt='pipe'))
+```
+
+## Configuration Files Created
+
+The following configuration files have been created or updated:
+
+1. `renv.lock` - R package versions and dependencies
+2. `requirements.txt` - Python package requirements
+3. `python-config.json` - Python environment configuration
+4. `.Rprofile` - R environment configuration
+
+## Next Steps
+
+1. Commit these files to version control:
+   ```bash
+   git add renv.lock requirements.txt python-config.json .Rprofile
+   git commit -m "chore: Set up reproducible environment"
+   ```
+
+2. Other users can now set up the same environment by:
+   - Opening the project in RStudio
+   - Running `renv::restore()`
+   - The Python environment will be automatically created
+
+## Verification
+
+You can verify the setup by running:
+
+```{r}
+#| warning: false
+#| message: false
+
+# Check R environment
+renv::status()
+
+# Check Python environment
+reticulate::py_config()
+```

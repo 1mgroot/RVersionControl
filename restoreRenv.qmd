@@ -1,20 +1,148 @@
 ---
-title: "restoreRenv"
+title: "Restore Project Environment"
+author: "Your Name"
 format: html
-editor: visual
-jupyter: python3
 ---
 
-## Step 5: Restore the Environment (Optional)
+# Environment Restoration
 
-To recreate an environment based on the `renv.lock` file, use:
+This document will:
+1. Restore R packages using renv
+2. Activate Python virtual environment
+3. Verify the setup
 
-``` r
-renv::restore()
-```
+## Restore R Environment
 
-This ensures all packages and their versions match the lock file.
+First, let's restore the R environment using renv:
 
 ```{r}
+#| warning: false
+#| message: false
+
+# Ensure renv is installed
+if (!require("renv", quietly = TRUE)) {
+  install.packages("renv")
+}
+
+# Restore R packages from renv.lock
 renv::restore()
+
+# Load essential packages
+library(reticulate)
+library(knitr)
+```
+
+## Activate Python Environment
+
+Now, let's ensure the Python environment is properly configured:
+
+```{r}
+#| warning: false
+#| message: false
+
+# Read Python configuration
+python_config <- jsonlite::read_json("python-config.json")
+
+# Create Python virtual environment if it doesn't exist
+if (!dir.exists(python_config$virtualenv)) {
+  reticulate::virtualenv_create(
+    envname = python_config$virtualenv,
+    python = python_config$version
+  )
+  
+  # Install required packages
+  reticulate::virtualenv_install(
+    envname = python_config$virtualenv,
+    requirements = python_config$requirements
+  )
+}
+
+# Use the virtual environment
+reticulate::use_virtualenv(python_config$virtualenv)
+```
+
+## Verify Setup
+
+### R Environment Status
+
+```{r}
+#| warning: false
+#| message: false
+
+# Check R environment status
+cat("R Version:", R.version$version.string, "\n\n")
+cat("R Environment Status:\n")
+renv::status()
+```
+
+### Python Environment Status
+
+```{python}
+#| warning: false
+
+import sys
+import pkg_resources
+from tabulate import tabulate
+
+# Print Python version
+print(f"Python Version: {sys.version.split()[0]}")
+
+# Read direct dependencies from requirements.txt
+with open('requirements.txt', 'r') as f:
+    direct_deps = [line.strip().split('==')[0] for line in f if line.strip()]
+
+# Get all installed packages
+all_packages = sorted([
+    [pkg.key, pkg.version]
+    for pkg in pkg_resources.working_set
+])
+
+# Split into direct and indirect dependencies
+direct_packages = []
+indirect_packages = []
+
+for pkg_name, version in all_packages:
+    if pkg_name in direct_deps:
+        direct_packages.append([pkg_name, version])
+    else:
+        indirect_packages.append([pkg_name, version])
+
+# Display direct dependencies
+print("\nDirect Python Dependencies (from requirements.txt):")
+print(tabulate(sorted(direct_packages), headers=['Package', 'Version'], tablefmt='pipe'))
+
+# Display indirect dependencies
+print("\nIndirect Python Dependencies (installed as dependencies of direct packages):")
+print(tabulate(sorted(indirect_packages), headers=['Package', 'Version'], tablefmt='pipe'))
+```
+
+## Next Steps
+
+If everything is set up correctly:
+
+1. All required R packages should be installed and available
+2. The Python virtual environment should be activated and packages installed
+3. You can now proceed to work with other Quarto documents in this project
+
+If you encounter any issues:
+
+1. Check the error messages in the output above
+2. Refer to the Troubleshooting section in the README
+3. Try re-running this document
+
+## Environment Information
+
+This section provides detailed information about your environment setup:
+
+```{r}
+#| warning: false
+#| message: false
+
+# Show R package information
+cat("\nR Package Information:\n")
+renv::dependencies()
+
+# Show Python configuration
+cat("\nPython Configuration:\n")
+reticulate::py_config()
 ```

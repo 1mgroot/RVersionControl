@@ -102,3 +102,23 @@ wheels/
 # OS specific
 .DS_Store
 Thumbs.db
+
+# R and Python Environment
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+renv/python/
+__pycache__/
+*.pyc
+
+# Project specific
+_output/
+!_output/.gitkeep
+.quarto/
+/.luarc.json
+
+# System files
+.DS_Store
+.env
+*.log

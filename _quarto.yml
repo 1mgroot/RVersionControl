@@ -1,5 +1,14 @@
 project:
   type: website
+  output-dir: _output
+
+format:
+  html:
+    theme: cosmo
+    toc: true
+    embed-resources: true
+    code-fold: true
+    code-tools: true
 
 python:
   path: "renv/python/bin/python"
