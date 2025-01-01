@@ -19,17 +19,9 @@ First, let's restore the R environment using renv:
 #| warning: false
 #| message: false
 
-# Ensure renv is installed
-if (!require("renv", quietly = TRUE)) {
-  install.packages("renv")
-}
-
 # Restore R packages from renv.lock
 renv::restore()
 
-# Load essential packages
-library(reticulate)
-library(knitr)
 ```
 
 ## Activate Python Environment
@@ -43,22 +35,18 @@ Now, let's ensure the Python environment is properly configured:
 # Read Python configuration
 python_config <- jsonlite::read_json("python-config.json")
 
-# Create Python virtual environment if it doesn't exist
-if (!dir.exists(python_config$virtualenv)) {
-  reticulate::virtualenv_create(
-    envname = python_config$virtualenv,
-    python = python_config$version
-  )
-  
-  # Install required packages
-  reticulate::virtualenv_install(
-    envname = python_config$virtualenv,
-    requirements = python_config$requirements
-  )
-}
+# Use Python from virtual environment
+renv::use_python(
+  python = file.path(getwd(), python_config$virtualenv, "bin/python"),
+  type = "virtualenv"
+)
 
-# Use the virtual environment
-reticulate::use_virtualenv(python_config$virtualenv)
+# Verify Python configuration
+py_config <- reticulate::py_config()
+message("\nPython Configuration:")
+message("- Python Version: ", py_config$version)
+message("- Python Path: ", py_config$python)
+message("- Virtual Environment: ", python_config$virtualenv)
 ```
 
 ## Verify Setup

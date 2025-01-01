@@ -1,117 +1,55 @@
-# QuartoPaper Project
+# Quarto Paper Project
 
-This project demonstrates reproducible research using Quarto with both R and Python. It uses `renv` for R package management and a Python virtual environment for Python dependencies.
-
-## Quick Start
-
-1. **Prerequisites**:
-   - Install R (version 4.4.2 or later)
-   - Install Python (version 3.11 or later)
-   - Install RStudio (recommended)
-   - Install Quarto
-
-2. **Clone and Setup**:
-   ```bash
-   git clone [repository-url]
-   cd QuartoPaper
-   ```
-
-3. **Initial Environment Setup**:
-   - Open the project in RStudio
-   - Render `renvSetup.qmd`:
-     ```r
-     quarto render renvSetup.qmd
-     ```
-   This will:
-     - Initialize renv for R package management
-     - Create Python virtual environment
-     - Install all required packages
-     - Generate documentation of all dependencies
-   - Check `_output/renvSetup.html` for setup details and verification
-
-4. **For Other Users (Environment Restoration)**:
-   - Clone the repository
-   - Open the project in RStudio
-   - Render `restoreRenv.qmd`:
-     ```r
-     quarto render restoreRenv.qmd
-     ```
-   - Check `_output/restoreRenv.html` for environment status
+A template for reproducible research papers using Quarto with R and Python integration.
 
 ## Project Structure
 
-### Key Files
-- `renvSetup.qmd` - Initial environment setup script
-- `restoreRenv.qmd` - Environment restoration for other users
-- `my-document.qmd` - Example document showing R and Python integration
+- `renvSetup.qmd` - Snapshots current R and Python environments
+- `restoreRenv.qmd` - Restores project environment on a new machine
+- `my-document.qmd` - Example document with R and Python code
+- `dependencies-info.qmd` - Displays detailed package information
 
-### Configuration Files
-- `_quarto.yml` - Quarto project configuration
-- `renv.lock` - R package version lock file
-- `requirements.txt` - Python package dependencies
-- `python-config.json` - Python environment configuration
-- `.Rprofile` - R environment settings
+## Prerequisites
 
-### Output Directory
-- `_output/` - Contains rendered HTML files
-  - `renvSetup.html` - Setup documentation
-  - `restoreRenv.html` - Restoration documentation
+- R (>= 4.2.0)
+- Python (>= 3.11)
+- Quarto (>= 1.3.0)
 
-### Environment Management
-- `renv/` - R package management
-  - Contains isolated R packages
-  - Managed by renv
-- `renv/python/` - Python virtual environment
-  - Contains isolated Python packages
-  - Managed through reticulate
+## Getting Started
 
-## Working with the Environment
+### First Time Setup
 
-### R Packages
-- Add new R packages:
-  ```r
-  renv::install("package_name")
-  renv::snapshot()  # Update renv.lock
-  ```
+If you're setting up this project for development:
 
-### Python Packages
-- Add new Python packages:
-  ```bash
-  source renv/python/bin/activate
-  pip install package_name
-  pip freeze > requirements.txt  # Update requirements.txt
-  ```
+1. Clone the repository
+2. Open the project in RStudio
+3. Run `renvSetup.qmd` to snapshot your environment
 
-### Checking Dependencies
-- View detailed dependency information:
-  ```r
-  quarto render renvSetup.qmd  # For current state
-  ```
-  or
-  ```r
-  quarto render restoreRenv.qmd  # For verification
-  ```
+### Restoring Environment
 
-## Troubleshooting
+If you're using an existing project:
 
-1. If R packages are missing:
-   ```r
-   renv::restore()
-   ```
+1. Clone the repository
+2. Open the project in RStudio
+3. Run `restoreRenv.qmd` to restore the environment
 
-2. If Python packages are missing:
-   ```r
-   reticulate::virtualenv_install("renv/python", packages = readLines("requirements.txt"))
-   ```
+## Environment Management
 
-3. To completely reset the environment:
-   - Delete `renv/python/` and `renv/library/`
-   - Re-render `renvSetup.qmd`
+This project uses:
+- `renv` for R package management
+- Python virtual environment for Python package management
+- Integrated R-Python environment through `reticulate`
 
-## Notes
-- The project uses renv to ensure reproducible R package versions
-- Python dependencies are managed in an isolated virtual environment
-- All configuration files are version controlled
-- Environment setup and restoration processes are documented in Quarto files
-- Output files are stored in `_output/` directory
-- Code blocks in rendered HTML are collapsed by default but can be expanded 
+## Contributing
+
+1. Make your changes
+2. Install any new packages needed
+3. Run `renvSetup.qmd` to update environment snapshots
+4. Commit all changes including:
+   - `renv.lock`
+   - `requirements.txt`
+   - `python-config.json`
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details. 

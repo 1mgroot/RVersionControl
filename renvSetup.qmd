@@ -9,14 +9,13 @@ format:
 # Environment Setup Process
 
 This document will:
-1. Initialize renv for R package management
-2. Set up Python virtual environment
-3. Install all required packages
-4. Document all dependencies
+1. Snapshot R packages to renv.lock
+2. Configure Python environment
+3. Document all dependencies
 
-## Initialize R Environment
+## Snapshot R Environment
 
-First, let's initialize renv and install required R packages:
+First, let's snapshot the current R environment:
 
 ```{r}
 #| warning: false
@@ -27,19 +26,13 @@ if (!file.exists("renv.lock")) {
   renv::init()
 }
 
-# Install and load required R packages
-if (!require("tidyverse")) renv::install("tidyverse")
-if (!require("reticulate")) renv::install("reticulate")
-if (!require("knitr")) renv::install("knitr")
-if (!require("rmarkdown")) renv::install("rmarkdown")
-
 # Take a snapshot of the current state
-renv::snapshot()
+renv::snapshot(prompt = FALSE)
 ```
 
-## Set Up Python Environment
+## Configure Python Environment
 
-Now, let's set up the Python virtual environment:
+Now, let's configure and snapshot the Python environment:
 
 ```{r}
 #| warning: false
@@ -47,8 +40,6 @@ Now, let's set up the Python virtual environment:
 
 # Create Python configuration
 python_config <- list(
-  version = "3.11",
-  requirements = "requirements.txt",
   virtualenv = "renv/python"
 )
 
@@ -60,36 +51,16 @@ jsonlite::write_json(
   auto_unbox = TRUE
 )
 
-# Create .Rprofile
-rprofile_content <- c(
-  'source("renv/activate.R")',
-  'Sys.setenv(RETICULATE_PYTHON = file.path(getwd(), "renv/python/bin/python"))'
-)
-writeLines(rprofile_content, ".Rprofile")
-
-# Set up Python virtual environment
-reticulate::virtualenv_create(
-  envname = "renv/python",
-  python = python_config$version
+# Configure Python environment
+renv::use_python(
+  python = file.path(getwd(), python_config$virtualenv, "bin/python"),
+  type = "virtualenv"
 )
 
-# Install Python packages
-python_packages <- c(
-  "pandas",
-  "numpy",
-  "matplotlib",
-  "jupyter",
-  "tabulate"  # Required for markdown tables
-)
-
-# Write requirements.txt
-writeLines(python_packages, "requirements.txt")
-
-# Install packages
-reticulate::virtualenv_install(
-  envname = "renv/python",
-  packages = python_packages,
-  ignore_installed = TRUE
+# Generate requirements.txt from installed packages
+system2(
+  file.path(getwd(), python_config$virtualenv, "bin/pip"),
+  c("freeze", ">", "requirements.txt")
 )
 ```
 
@@ -125,18 +96,7 @@ if (length(deps) > 0) {
   cat("No direct dependencies found.\n")
 }
 
-# Show all installed packages
-cat("\nAll Installed R Packages (including indirect dependencies):\n")
-all_pkgs <- names(packages)
-if (length(all_pkgs) > 0) {
-  pkg_info <- sapply(all_pkgs, function(pkg) {
-    version <- if (!is.null(packages[[pkg]])) packages[[pkg]]$Version else "unknown"
-    sprintf("- %s: %s", pkg, version)
-  })
-  cat(paste(sort(pkg_info), collapse = "\n"), "\n")
-}
-
-# Show full environment status
+# Show environment status
 cat("\nR Environment Status:\n")
 renv::status()
 ```
@@ -155,33 +115,15 @@ from tabulate import tabulate
 # Print Python version
 print(f"Python Version: {sys.version.split()[0]}")
 
-# Read direct dependencies from requirements.txt
-with open('requirements.txt', 'r') as f:
-    direct_deps = [line.strip().split('==')[0] for line in f if line.strip()]
-
 # Get all installed packages
-all_packages = sorted([
+packages = sorted([
     [pkg.key, pkg.version]
     for pkg in pkg_resources.working_set
 ])
 
-# Split into direct and indirect dependencies
-direct_packages = []
-indirect_packages = []
-
-for pkg_name, version in all_packages:
-    if pkg_name in direct_deps:
-        direct_packages.append([pkg_name, version])
-    else:
-        indirect_packages.append([pkg_name, version])
-
-# Display direct dependencies
-print("\nDirect Python Dependencies (from requirements.txt):")
-print(tabulate(sorted(direct_packages), headers=['Package', 'Version'], tablefmt='pipe'))
-
-# Display indirect dependencies
-print("\nIndirect Python Dependencies (installed as dependencies of direct packages):")
-print(tabulate(sorted(indirect_packages), headers=['Package', 'Version'], tablefmt='pipe'))
+# Display all packages
+print("\nInstalled Python Packages:")
+print(tabulate(packages, headers=['Package', 'Version'], tablefmt='pipe'))
 ```
 
 ## Configuration Files Created
@@ -191,32 +133,13 @@ The following configuration files have been created or updated:
 1. `renv.lock` - R package versions and dependencies
 2. `requirements.txt` - Python package requirements
 3. `python-config.json` - Python environment configuration
-4. `.Rprofile` - R environment configuration
 
 ## Next Steps
 
 1. Commit these files to version control:
    ```bash
-   git add renv.lock requirements.txt python-config.json .Rprofile
-   git commit -m "chore: Set up reproducible environment"
+   git add renv.lock requirements.txt python-config.json
+   git commit -m "chore: Snapshot project environment"
    ```
 
-2. Other users can now set up the same environment by:
-   - Opening the project in RStudio
-   - Running `renv::restore()`
-   - The Python environment will be automatically created
-
-## Verification
-
-You can verify the setup by running:
-
-```{r}
-#| warning: false
-#| message: false
-
-# Check R environment
-renv::status()
-
-# Check Python environment
-reticulate::py_config()
-```
+2. Other users can restore this environment using `restoreRenv.qmd`
