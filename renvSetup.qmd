@@ -8,14 +8,9 @@ format:
 
 # Environment Setup Process
 
-This document will:
-1. Snapshot R packages to renv.lock
-2. Configure Python environment
-3. Document all dependencies
+This document will snapshot the current R and Python environments.
 
-## Snapshot R Environment
-
-First, let's snapshot the current R environment:
+## Initialize and Snapshot Environment
 
 ```{r}
 #| warning: false
@@ -26,42 +21,8 @@ if (!file.exists("renv.lock")) {
   renv::init()
 }
 
-# Take a snapshot of the current state
+# Take a snapshot of both R and Python environments
 renv::snapshot(prompt = FALSE)
-```
-
-## Configure Python Environment
-
-Now, let's configure and snapshot the Python environment:
-
-```{r}
-#| warning: false
-#| message: false
-
-# Create Python configuration
-python_config <- list(
-  virtualenv = "renv/python"
-)
-
-# Write Python configuration
-jsonlite::write_json(
-  python_config,
-  "python-config.json",
-  pretty = TRUE,
-  auto_unbox = TRUE
-)
-
-# Configure Python environment
-renv::use_python(
-  python = file.path(getwd(), python_config$virtualenv, "bin/python"),
-  type = "virtualenv"
-)
-
-# Generate requirements.txt from installed packages
-system2(
-  file.path(getwd(), python_config$virtualenv, "bin/pip"),
-  c("freeze", ">", "requirements.txt")
-)
 ```
 
 ## Document Dependencies
@@ -132,14 +93,13 @@ The following configuration files have been created or updated:
 
 1. `renv.lock` - R package versions and dependencies
 2. `requirements.txt` - Python package requirements
-3. `python-config.json` - Python environment configuration
 
 ## Next Steps
 
 1. Commit these files to version control:
    ```bash
-   git add renv.lock requirements.txt python-config.json
-   git commit -m "chore: Snapshot project environment"
+   git add renv.lock requirements.txt
+   git commit -m "chore: Update environment snapshots"
    ```
 
 2. Other users can restore this environment using `restoreRenv.qmd`
