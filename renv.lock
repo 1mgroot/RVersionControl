@@ -4,9 +4,14 @@
     "Repositories": [
       {
         "Name": "CRAN",
-        "URL": "https://packagemanager.posit.co/cran/latest"
+        "URL": "https://cloud.r-project.org"
       }
     ]
+  },
+  "Python": {
+    "Version": "3.11.11",
+    "Type": "virtualenv",
+    "Name": "./renv/python"
   },
   "Packages": {
     "DBI": {
